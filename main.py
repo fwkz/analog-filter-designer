@@ -45,9 +45,9 @@ class Filter(object):
                                              output='ba')
 
         (self.w, self.h) = signal.freqs(self.b, self.a, worN=1000)
-        print self.w
-        print self.ord
-        print self.wn
+        # print self.w
+        # print self.ord
+        # print self.wn
 
     def phase_response(self):
         """Plotting PHASE response of the filter."""
