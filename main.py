@@ -111,12 +111,13 @@ class Filter(object):
         """To be implemented"""
         pass
 
-#filter1 = Filter(10000, 17000, 1.0, 25.0, ftype="butterworth").phase_response()
-filter2 = Filter(155, 50, 1.0, 40.0, ftype="butterworth")
+if __name__ == '__main__':    
+    #filter1 = Filter(10000, 17000, 1.0, 25.0, ftype="butterworth").phase_response()
+    filter2 = Filter(155, 50, 1.0, 40.0, ftype="butterworth")
 
-filter2.phase_response()
-filter2.poles_zeros()
-filter2.freq_response()
-filter2.step_response()
+    filter2.phase_response()
+    filter2.poles_zeros()
+    filter2.freq_response()
+    filter2.step_response()
 
-pyplot.show()
+    pyplot.show()
