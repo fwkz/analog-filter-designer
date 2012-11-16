@@ -12,10 +12,10 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnClick, button)
 
         ftype_txt = wx.StaticText(panel, label="Approximation:", pos=(130, 20))
-        ftype_list = ["Butterworth", "Chebyshev"]
+        ftype_list = ["Butterworth", "Chebyshev I"]
         self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (130, 35), (80, 60), ftype_list, wx.LB_SINGLE)
         self.ftype_listbox.SetSelection(0)
-        self.ftype = self.ftype_listbox.GetStringSelection()
+        self.get_ftype(wx.EVT_LISTBOX)
         self.Bind(wx.EVT_LISTBOX, self.get_ftype, self.ftype_listbox)
 
         fp_txt = wx.StaticText(panel, label="Fp", pos=(20, 80))
@@ -52,10 +52,13 @@ class MyFrame(wx.Frame):
 
     def get_ftype(self, event):
         self.ftype = self.ftype_listbox.GetStringSelection()
+        types_dict = {"Butterworth":"butter", "Chebyshev I":"cheby1"}
+        self.ftype = types_dict[self.ftype]
+        print self.ftype
 
     def OnClick(self, event):
         #filter1 = Filter(10000, 17000, 1.0, 25.0, ftype="butterworth").phase_response()
-        filter2 = Filter(self.fp, self.fs, self.gpass, 40.0, ftype="butterworth")
+        filter2 = Filter(self.fp, self.fs, self.gpass, 40.0, ftype=self.ftype)
         filter2.phase_response()
         filter2.poles_zeros()
         filter2.freq_response()

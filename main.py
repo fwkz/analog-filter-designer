@@ -11,7 +11,9 @@ class Filter(object):
         self.fs = fs
         self.gpass =  gpass
         self.gstop = gstop
-        self.ftype = ftype
+
+        types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I"}
+        self.ftype_plot = types_dict[ftype]
 
         #Computing omegas [rad/s]
         self.wp = 2 * pi * self.fp
@@ -31,23 +33,22 @@ class Filter(object):
         self.wp_norm = self.wp / (self.sampling_w / 2)
         self.ws_norm = self.ws / (self.sampling_w / 2)
   
-        if ftype == "butterworth":
+        if ftype == "butter":
             (self.ord, self.wn) = signal.buttord(self.wp_norm,
                                                  self.ws_norm,
                                                  self.gpass,
                                                  self.gstop,
                                                  analog=True)
-            #Designing filter.
-            (self.b, self.a) = signal.butter(self.ord,
-                                             self.wn,
-                                             btype=self.btype,
-                                             analog=True,
-                                             output='ba')
+        elif ftype == "cheby1":
+            (self.ord, self.wn) = signal.cheb1ord(self.wp_norm,
+                                                  self.ws_norm,
+                                                  self.gpass,
+                                                  self.gstop,
+                                                  analog=True)
 
+
+        (self.b, self.a) = signal.iirfilter(self.ord, self.wn, rp=self.gpass, btype=self.btype, analog=True, output='ba', ftype=ftype)
         (self.w, self.h) = signal.freqs(self.b, self.a, worN=1000)
-        # print self.w
-        # print self.ord
-        # print self.wn
 
     def phase_response(self):
         """Plotting PHASE response of the filter."""
@@ -55,7 +56,7 @@ class Filter(object):
         pyplot.plot(self.w, unwrap((angle(self.h))))
         pyplot.grid(True)
         pyplot.xlim(0, 1)
-        pyplot.title('Phase Response' + "\n" + str(self.ord) + "th order " + self.btype +" Butterworth filter")
+        pyplot.title('Phase Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
 
         #Denormalizing variabels for ploting.
         # w = (w * (self.sampling_w / 2)) / (2 * pi)
@@ -65,18 +66,18 @@ class Filter(object):
         """Plotting FREQUENCY response of filter."""
         pyplot.figure()
         pyplot.semilogx(self.w, abs(self.h))
-        pyplot.title('Frequency Response' + "\n" + str(self.ord) + "th order " + self.btype +" Butterworth filter")
-        pyplot.xlabel('Frequency [Hz]')
-        pyplot.ylabel('Amplitude [V]')
+        pyplot.title('Frequency Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
+        pyplot.xlabel('Frequency')
+        pyplot.ylabel('Amplitude')
         pyplot.grid(True)
-        #pyplot.axis([0, 2, 0, 1.2])
+        pyplot.axis([0, 10, 0, 1.2])
         pyplot.vlines(self.wn, 0, 1.2, color='k', linestyles='dashdot', label="wn")
 
     def poles_zeros(self):
         """Computing and plotting POLES-ZEROS of the filter"""
         pyplot.figure(figsize=(6, 6))
         (p, z, k) = signal.tf2zpk(self.b, self.a)
-        z = -(z / min(real(z)))
+        # z = -(z / min(real(z)))
 
         #try:
         #    p = -(p / min(real(p)))
@@ -86,14 +87,14 @@ class Filter(object):
         #Plotting Poles-zeros
         pyplot.scatter(real(p), imag(p), marker='o', s=50)
         pyplot.scatter(real(z), imag(z), marker='x', s=100)
-        circle = Circle((0, 0), radius=abs(z[1]), linestyle='dotted', fill=False)
-        pyplot.gca().add_patch(circle)
-        pyplot.axis([-1.2, 1.2, -1.2, 1.2])
-        pyplot.vlines(0, -1.2, 1.2, color='k', linestyles='dotted')
-        pyplot.hlines(0, -1.2, 1.2, color='k', linestyles='dotted')
+        # circle = Circle((0, 0), radius=abs(z[1]), linestyle='dotted', fill=False)
+        # pyplot.gca().add_patch(circle)
+        pyplot.axis([-2, 2, -2, 2])
+        pyplot.vlines(0, -2, 2, color='k', linestyles='dotted')
+        pyplot.hlines(0, -2, 2, color='k', linestyles='dotted')
         pyplot.xlabel('Real Part')
         pyplot.ylabel('Imaginary Part')
-        pyplot.title('Pole-zeros' + "\n" + str(self.ord) + "th order " + self.btype +" Butterworth filter")
+        pyplot.title('Pole-zeros' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
 
     def step_response(self):
         """Computing and plotting STEP response of the filter."""
@@ -105,19 +106,18 @@ class Filter(object):
         pyplot.grid(True)
         pyplot.xlabel('Time')
         pyplot.xlim(0, max(T))
-        pyplot.title('Impulse Response' + "\n" + str(self.ord) + "th order " + self.btype +" Butterworth filter")
+        pyplot.title('Impulse Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
 
-    def chebyshev(self):
-        """To be implemented"""
-        pass
 
 if __name__ == '__main__':    
-    #filter1 = Filter(10000, 17000, 1.0, 25.0, ftype="butterworth").phase_response()
-    filter2 = Filter(155, 50, 1.0, 40.0, ftype="butterworth")
+    filter1 = Filter(50, 155, 1.0, 40.0, ftype="cheby1")
+    filter1.freq_response()
+    filter1.poles_zeros()
 
-    filter2.phase_response()
+    filter2 = Filter(155, 50, 1.0, 40.0, ftype="butter")    
     filter2.poles_zeros()
     filter2.freq_response()
-    filter2.step_response()
+    # filter2.step_response()
+    # filter2.phase_response()
 
     pyplot.show()
