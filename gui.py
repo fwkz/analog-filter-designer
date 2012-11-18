@@ -4,34 +4,44 @@ from matplotlib import pyplot
 class MyFrame(wx.Frame):
     """ We simply derive a new class of Frame. """
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(250, 250))
+        wx.Frame.__init__(self, parent, title=title, size=(270, 250))
         panel = wx.Panel(self)
         
-        txt = wx.StaticText(panel, label="Lecisz z koksem?", pos=(30, 20))
-        button = wx.Button(panel, wx.ID_ANY, label="heja", pos=(30, 40))
+        #txt = wx.StaticText(panel, label="Press the button", pos=(80, 160))
+        button = wx.Button(panel, wx.ID_ANY, label="Generate", pos=(70, 160), size=(120, 40))
         self.Bind(wx.EVT_BUTTON, self.OnClick, button)
 
-        ftype_txt = wx.StaticText(panel, label="Approximation:", pos=(130, 20))
+        ftype_txt = wx.StaticText(panel, label="Approximation:", pos=(150, 20))
         ftype_list = ["Butterworth", "Chebyshev I"]
-        self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (130, 35), (80, 60), ftype_list, wx.LB_SINGLE)
+        self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 35), (80, 110), ftype_list, wx.LB_SINGLE)
         self.ftype_listbox.SetSelection(0)
         self.get_ftype(wx.EVT_LISTBOX)
         self.Bind(wx.EVT_LISTBOX, self.get_ftype, self.ftype_listbox)
 
-        fp_txt = wx.StaticText(panel, label="Fp", pos=(20, 80))
-        self.fp_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 80), (60, 20))
+        txt = wx.StaticText(panel, label="Filter parameters:", pos=(20, 20))
+
+        fp_txt = wx.StaticText(panel, label="Fp", pos=(20, 40))
+        self.fp_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 40), (70, 20))
+        self.fp_spinner.SetRange(1,100000)
+        self.get_fp(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_fp, self.fp_spinner)
 
-        fs_txt = wx.StaticText(panel, label="Fs", pos=(20, 110))
-        self.fs_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 110), (60, 20))
+        fs_txt = wx.StaticText(panel, label="Fs", pos=(20, 70))
+        self.fs_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 70), (70, 20))
+        self.fs_spinner.SetRange(1,100000)
+        self.get_fs(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_fs, self.fs_spinner)
 
-        gpass_txt = wx.StaticText(panel, label="gpass", pos=(20, 140))
-        self.gpass_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 140), (60, 20))
+        gpass_txt = wx.StaticText(panel, label="gpass", pos=(20, 100))
+        self.gpass_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 100), (70, 20))
+        self.gpass_spinner.SetRange(1,100)
+        self.get_gpass(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_gpass, self.gpass_spinner)
         
-        gstop_txt = wx.StaticText(panel, label="gstop", pos=(20, 170))
-        self.gstop_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 170), (60, 20))
+        gstop_txt = wx.StaticText(panel, label="gstop", pos=(20, 130))
+        self.gstop_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 130), (70, 20))
+        self.gstop_spinner.SetRange(1,100)
+        self.get_gstop(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_gstop, self.gstop_spinner)
 
         self.Show(True)

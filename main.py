@@ -11,6 +11,7 @@ class Filter(object):
         self.fs = fs
         self.gpass =  gpass
         self.gstop = gstop
+        self.ftype = ftype
 
         types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I"}
         self.ftype_plot = types_dict[ftype]
@@ -77,24 +78,38 @@ class Filter(object):
         """Computing and plotting POLES-ZEROS of the filter"""
         pyplot.figure(figsize=(6, 6))
         (p, z, k) = signal.tf2zpk(self.b, self.a)
-        # z = -(z / min(real(z)))
-
-        #try:
-        #    p = -(p / min(real(p)))
-        #except ValueError:
-        #    pass
+        
+        if self.ftype == 'butter':
+            z = -(z / min(real(z)))
+            circle = Circle((0, 0), radius=abs(max(z)), linestyle='dotted', fill=False)
+            try:
+               p = -(p / min(real(p)))
+            except ValueError:
+               pass
+        else:
+            circle = Circle((0, 0), radius=1, linestyle='dotted', fill=False)
 
         #Plotting Poles-zeros
         pyplot.scatter(real(p), imag(p), marker='o', s=50)
         pyplot.scatter(real(z), imag(z), marker='x', s=100)
-        # circle = Circle((0, 0), radius=abs(z[1]), linestyle='dotted', fill=False)
-        # pyplot.gca().add_patch(circle)
-        pyplot.axis([-2, 2, -2, 2])
-        pyplot.vlines(0, -2, 2, color='k', linestyles='dotted')
-        pyplot.hlines(0, -2, 2, color='k', linestyles='dotted')
+
         pyplot.xlabel('Real Part')
         pyplot.ylabel('Imaginary Part')
         pyplot.title('Pole-zeros' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
+
+        #Formatting plot.
+        pyplot.gca().add_patch(circle)
+        limits = []
+        limits.append(max(pyplot.gca().get_xlim()))
+        limits.append(max(pyplot.gca().get_ylim()))
+        max_limit = max(limits)
+        
+        if max_limit < 1.2:
+            max_limit = 1.2
+
+        pyplot.axis([-max_limit, max_limit, -max_limit, max_limit])
+        pyplot.vlines(0, -max_limit, max_limit, color='k', linestyles='dotted')
+        pyplot.hlines(0, -max_limit, max_limit, color='k', linestyles='dotted')
 
     def step_response(self):
         """Computing and plotting STEP response of the filter."""
@@ -110,11 +125,11 @@ class Filter(object):
 
 
 if __name__ == '__main__':    
-    filter1 = Filter(50, 155, 1.0, 40.0, ftype="cheby1")
+    filter1 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby1")
     filter1.freq_response()
     filter1.poles_zeros()
 
-    filter2 = Filter(155, 50, 1.0, 40.0, ftype="butter")    
+    filter2 = Filter(2000, 5000, 1.0, 40.0, ftype="butter")    
     filter2.poles_zeros()
     filter2.freq_response()
     # filter2.step_response()
