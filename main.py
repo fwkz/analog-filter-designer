@@ -13,7 +13,8 @@ class Filter(object):
         self.gstop = gstop
         self.ftype = ftype
 
-        types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I"}
+        #Filter type for plot's title.
+        types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I", "cheby2":"Chebyshev II", "ellip": "Cauer"}
         self.ftype_plot = types_dict[ftype]
 
         #Computing omegas [rad/s]
@@ -24,54 +25,93 @@ class Filter(object):
         if self.wp > self.ws:
             self.sampling_w = 2 * self.wp
             self.btype = "highpass"
-            #self.xaxis_max = 2 * self.fp
         else:
             self.sampling_w = 2 * self.ws
             self.btype = 'lowpass'
-            #self.xaxis_max = 2 * self.fs
 
         #Normalizing omegas due to Nyquist frequency.
         self.wp_norm = self.wp / (self.sampling_w / 2)
         self.ws_norm = self.ws / (self.sampling_w / 2)
-  
+        
+        #Computing filters order and maximum value of X axis.
         if ftype == "butter":
+            if self.btype == 'highpass':
+                self.xaxis_max = 0.2
+            else:
+                self.xaxis_max = 0.15
             (self.ord, self.wn) = signal.buttord(self.wp_norm,
                                                  self.ws_norm,
                                                  self.gpass,
                                                  self.gstop,
                                                  analog=True)
         elif ftype == "cheby1":
+            if self.btype == 'highpass':
+                self.xaxis_max = 0.6
+            else:
+                self.xaxis_max = 0.15
             (self.ord, self.wn) = signal.cheb1ord(self.wp_norm,
                                                   self.ws_norm,
                                                   self.gpass,
                                                   self.gstop,
                                                   analog=True)
+        elif ftype == "cheby2":
+            if self.btype == 'highpass':
+                self.xaxis_max = 0.2
+            else:
+                self.xaxis_max = 0.3
+            (self.ord, self.wn) = signal.cheb2ord(self.wp_norm,
+                                                  self.ws_norm,
+                                                  self.gpass,
+                                                  self.gstop,
+                                                  analog=True)
+            
+        elif ftype == "ellip":
+            if self.btype == 'highpass':
+                self.xaxis_max = 0.6
+            else:
+                self.xaxis_max = 0.2
+            (self.ord, self.wn) = signal.ellipord(self.wp_norm,
+                                                  self.ws_norm,
+                                                  self.gpass,
+                                                  self.gstop,
+                                                  analog=True)
+            
+        #Designing filter.
+        (self.b, self.a) = signal.iirfilter(self.ord,
+                                            self.wn,
+                                            rp=self.gpass, 
+                                            rs=self.gstop, 
+                                            btype=self.btype, 
+                                            analog=True, 
+                                            output='ba', 
+                                            ftype=ftype)
 
-
-        (self.b, self.a) = signal.iirfilter(self.ord, self.wn, rp=self.gpass, btype=self.btype, analog=True, output='ba', ftype=ftype)
+        #Frequency response of analog filter.
         (self.w, self.h) = signal.freqs(self.b, self.a, worN=1000)
+
+        #Denormalizing variabels for ploting.
+        self.w = (self.w * (self.sampling_w / 2)) / (2 * pi)
+        self.wn = (self.wn * (self.sampling_w / 2)) / (2 * pi)
 
     def phase_response(self):
         """Plotting PHASE response of the filter."""
         pyplot.figure()
         pyplot.plot(self.w, unwrap((angle(self.h))))
         pyplot.grid(True)
-        pyplot.xlim(0, 1)
+        pyplot.xlim(0, max(self.w))
         pyplot.title('Phase Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
-
-        #Denormalizing variabels for ploting.
-        # w = (w * (self.sampling_w / 2)) / (2 * pi)
-        # wn = (wn * (self.sampling_w / 2)) / (2 * pi)
 
     def freq_response(self):
         """Plotting FREQUENCY response of filter."""
+        print min(self.w)
         pyplot.figure()
-        pyplot.semilogx(self.w, abs(self.h))
+        pyplot.plot(self.w, abs(self.h))
         pyplot.title('Frequency Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
         pyplot.xlabel('Frequency')
         pyplot.ylabel('Amplitude')
         pyplot.grid(True)
-        pyplot.axis([0, 10, 0, 1.2])
+        self.axis_formatter = [0, max(self.w)*self.xaxis_max, 0, 1.2]
+        pyplot.axis(self.axis_formatter)
         pyplot.vlines(self.wn, 0, 1.2, color='k', linestyles='dashdot', label="wn")
 
     def poles_zeros(self):
@@ -125,13 +165,23 @@ class Filter(object):
 
 
 if __name__ == '__main__':    
-    filter1 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby1")
-    filter1.freq_response()
-    filter1.poles_zeros()
+    filter1 = Filter(2500, 1500, 1.0, 40.0, ftype="butter")
+    filter2 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby1")
+    filter3 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby2")
+    filter4 = Filter(2500, 1500, 1.0, 40.0, ftype="ellip")
 
-    filter2 = Filter(2000, 5000, 1.0, 40.0, ftype="butter")    
-    filter2.poles_zeros()
+    # filter1 = Filter(100, 150, 1.0, 40.0, ftype="butter")
+    # filter2 = Filter(100, 150, 1.0, 40.0, ftype="cheby1")
+    # filter3 = Filter(100, 150, 1.0, 20.0, ftype="cheby2")
+    # filter4 = Filter(100, 150, 1.0, 40.0, ftype="ellip")
+
+    filter1.freq_response()
     filter2.freq_response()
+    filter3.freq_response()
+    filter4.freq_response()
+
+    # filter2.poles_zeros()
+    # filter2.freq_response()
     # filter2.step_response()
     # filter2.phase_response()
 

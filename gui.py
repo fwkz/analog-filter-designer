@@ -7,12 +7,11 @@ class MyFrame(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size=(270, 250))
         panel = wx.Panel(self)
         
-        #txt = wx.StaticText(panel, label="Press the button", pos=(80, 160))
         button = wx.Button(panel, wx.ID_ANY, label="Generate", pos=(70, 160), size=(120, 40))
         self.Bind(wx.EVT_BUTTON, self.OnClick, button)
 
         ftype_txt = wx.StaticText(panel, label="Approximation:", pos=(150, 20))
-        ftype_list = ["Butterworth", "Chebyshev I"]
+        ftype_list = ["Butterworth", "Chebyshev I", "Chebyshev II", "Cauer"]
         self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 35), (80, 110), ftype_list, wx.LB_SINGLE)
         self.ftype_listbox.SetSelection(0)
         self.get_ftype(wx.EVT_LISTBOX)
@@ -54,26 +53,21 @@ class MyFrame(wx.Frame):
 
     def get_gpass(self, event):
         self.gpass = self.gpass_spinner.GetValue()
-        print self.gpass
 
     def get_gstop(self, event):
         self.gstop = self.gstop_spinner.GetValue()
-        print self.gstop
 
     def get_ftype(self, event):
         self.ftype = self.ftype_listbox.GetStringSelection()
-        types_dict = {"Butterworth":"butter", "Chebyshev I":"cheby1"}
+        types_dict = {"Butterworth":"butter", "Chebyshev I":"cheby1", "Chebyshev II":"cheby2", "Cauer": "ellip"}
         self.ftype = types_dict[self.ftype]
-        print self.ftype
 
     def OnClick(self, event):
-        #filter1 = Filter(10000, 17000, 1.0, 25.0, ftype="butterworth").phase_response()
-        filter2 = Filter(self.fp, self.fs, self.gpass, 40.0, ftype=self.ftype)
+        filter2 = Filter(self.fp, self.fs, self.gpass, self.gstop, ftype=self.ftype)
         filter2.phase_response()
         filter2.poles_zeros()
         filter2.freq_response()
         filter2.step_response()
-        print ">" + str(self.ftype) + "<"
         pyplot.show()
 
 
