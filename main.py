@@ -17,28 +17,47 @@ class Filter(object):
         types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I", "cheby2":"Chebyshev II", "ellip": "Cauer"}
         self.ftype_plot = types_dict[ftype]
 
-        #Computing omegas [rad/s]
-        self.wp = 2 * pi * self.fp
-        self.ws = 2 * pi * self.fs
+        if type(self.fp) is list:
+            #Computing omegas [rad/s]
+            self.wp = [fp * 2 * pi for fp in self.fp]
+            self.ws = [fs * 2 * pi for fs in self.fs]
+            self.btype = 'bandstop'
 
-        #Computing sampling frequency due to Whittaker-Nyquist-Kotelnikov-Shannon law.
-        if self.wp > self.ws:
-            self.sampling_w = 2 * self.wp
-            self.btype = "highpass"
+            #Computing sampling frequency due to Whittaker-Nyquist-Kotelnikov-Shannon law.
+            if max(self.wp) > max(self.ws):
+                self.sampling_w = 2 * max(self.wp)
+            else:
+                self.sampling_w = 2 * max(self.ws)
         else:
-            self.sampling_w = 2 * self.ws
-            self.btype = 'lowpass'
+            #Computing omegas [rad/s]
+            self.wp = 2 * pi * self.fp
+            self.ws = 2 * pi * self.fs
+
+            #Computing sampling frequency due to Whittaker-Nyquist-Kotelnikov-Shannon law.
+            if self.wp > self.ws:
+                self.sampling_w = 2 * self.wp
+                self.btype = "highpass"
+            else:
+                self.sampling_w = 2 * self.ws
+                self.btype = 'lowpass'
 
         #Normalizing omegas due to Nyquist frequency.
-        self.wp_norm = self.wp / (self.sampling_w / 2)
-        self.ws_norm = self.ws / (self.sampling_w / 2)
-        
+        if type(self.wp) is list:
+            self.wp_norm = [wp / (self.sampling_w / 2) for wp in self.wp]
+            self.ws_norm = [ws / (self.sampling_w / 2) for ws in self.ws]
+        else:
+            self.wp_norm = self.wp / (self.sampling_w / 2)
+            self.ws_norm = self.ws / (self.sampling_w / 2)
+
+
         #Computing filters order and maximum value of X axis.
         if ftype == "butter":
             if self.btype == 'highpass':
                 self.xaxis_max = 0.2
             else:
                 self.xaxis_max = 0.15
+                print "wp: %s" % self.wp_norm
+                print "ws: %s" % self.ws_norm
             (self.ord, self.wn) = signal.buttord(self.wp_norm,
                                                  self.ws_norm,
                                                  self.gpass,
@@ -165,10 +184,10 @@ class Filter(object):
 
 
 if __name__ == '__main__':    
-    filter1 = Filter(2500, 1500, 1.0, 40.0, ftype="butter")
-    filter2 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby1")
-    filter3 = Filter(2500, 1500, 1.0, 40.0, ftype="cheby2")
-    filter4 = Filter(2500, 1500, 1.0, 40.0, ftype="ellip")
+    filter1 = Filter([500, 1000], [600, 900], 1.0, 20.0, ftype="butter")
+    filter2 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby1")
+    filter3 = Filter([500, 1000], [300, 1200], 1.0, 40.0, ftype="cheby2")
+    filter4 = Filter([500, 1000], [300, 1200], 1.0, 40.0, ftype="ellip")
 
     # filter1 = Filter(100, 150, 1.0, 40.0, ftype="butter")
     # filter2 = Filter(100, 150, 1.0, 40.0, ftype="cheby1")
