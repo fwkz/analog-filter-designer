@@ -5,7 +5,7 @@ from matplotlib.patches import Circle
 
 
 class Filter(object):
-    def __init__(self, fp, fs, gpass, gstop, ftype): 
+    def __init__(self, fp, fs, gpass, gstop, ftype, btype): 
         #Variables init.
         self.fp = fp
         self.fs = fs
@@ -17,17 +17,21 @@ class Filter(object):
         types_dict = {"butter":"Butterworth", "cheby1":"Chebyshev I", "cheby2":"Chebyshev II", "ellip": "Cauer"}
         self.ftype_plot = types_dict[ftype]
 
-        if type(self.fp) is list:
+        if type(self.fp) and type(self.fs) is list:
             #Computing omegas [rad/s]
             self.wp = [fp * 2 * pi for fp in self.fp]
             self.ws = [fs * 2 * pi for fs in self.fs]
-            self.btype = 'bandstop'
+            self.btype = btype
 
             #Computing sampling frequency due to Whittaker-Nyquist-Kotelnikov-Shannon law.
             if max(self.wp) > max(self.ws):
                 self.sampling_w = 2 * max(self.wp)
             else:
                 self.sampling_w = 2 * max(self.ws)
+
+            #Normalizing omegas due to Nyquist frequency.
+            self.wp_norm = [wp / (self.sampling_w / 2) for wp in self.wp]
+            self.ws_norm = [ws / (self.sampling_w / 2) for ws in self.ws]
         else:
             #Computing omegas [rad/s]
             self.wp = 2 * pi * self.fp
@@ -41,14 +45,9 @@ class Filter(object):
                 self.sampling_w = 2 * self.ws
                 self.btype = 'lowpass'
 
-        #Normalizing omegas due to Nyquist frequency.
-        if type(self.wp) is list:
-            self.wp_norm = [wp / (self.sampling_w / 2) for wp in self.wp]
-            self.ws_norm = [ws / (self.sampling_w / 2) for ws in self.ws]
-        else:
+            #Normalizing omegas due to Nyquist frequency.
             self.wp_norm = self.wp / (self.sampling_w / 2)
             self.ws_norm = self.ws / (self.sampling_w / 2)
-
 
         #Computing filters order and maximum value of X axis.
         if ftype == "butter":
@@ -56,8 +55,6 @@ class Filter(object):
                 self.xaxis_max = 0.2
             else:
                 self.xaxis_max = 0.15
-                print "wp: %s" % self.wp_norm
-                print "ws: %s" % self.ws_norm
             (self.ord, self.wn) = signal.buttord(self.wp_norm,
                                                  self.ws_norm,
                                                  self.gpass,
@@ -83,7 +80,6 @@ class Filter(object):
                                                   self.gpass,
                                                   self.gstop,
                                                   analog=True)
-            
         elif ftype == "ellip":
             if self.btype == 'highpass':
                 self.xaxis_max = 0.6
@@ -122,7 +118,6 @@ class Filter(object):
 
     def freq_response(self):
         """Plotting FREQUENCY response of filter."""
-        print min(self.w)
         pyplot.figure()
         pyplot.plot(self.w, abs(self.h))
         pyplot.title('Frequency Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
@@ -186,8 +181,8 @@ class Filter(object):
 if __name__ == '__main__':    
     filter1 = Filter([500, 1000], [600, 900], 1.0, 20.0, ftype="butter")
     filter2 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby1")
-    filter3 = Filter([500, 1000], [300, 1200], 1.0, 40.0, ftype="cheby2")
-    filter4 = Filter([500, 1000], [300, 1200], 1.0, 40.0, ftype="ellip")
+    filter3 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby2")
+    filter4 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="ellip")
 
     # filter1 = Filter(100, 150, 1.0, 40.0, ftype="butter")
     # filter2 = Filter(100, 150, 1.0, 40.0, ftype="cheby1")
