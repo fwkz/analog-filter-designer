@@ -179,10 +179,10 @@ class Filter(object):
 
 
 if __name__ == '__main__':    
-    filter1 = Filter([500, 1000], [600, 900], 1.0, 20.0, ftype="butter")
-    filter2 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby1")
-    filter3 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby2")
-    filter4 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="ellip")
+    filter1 = Filter([500, 1000], [600, 900], 1.0, 20.0, ftype="butter", btype='bandstop')
+    # filter2 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby1")
+    # filter3 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="cheby2")
+    # filter4 = Filter([500, 1000], [300, 1200], 1.0, 20.0, ftype="ellip")
 
     # filter1 = Filter(100, 150, 1.0, 40.0, ftype="butter")
     # filter2 = Filter(100, 150, 1.0, 40.0, ftype="cheby1")
@@ -190,9 +190,10 @@ if __name__ == '__main__':
     # filter4 = Filter(100, 150, 1.0, 40.0, ftype="ellip")
 
     filter1.freq_response()
-    filter2.freq_response()
-    filter3.freq_response()
-    filter4.freq_response()
+    print filter1.a
+    # filter2.freq_response()
+    # filter3.freq_response()
+    # filter4.freq_response()
 
     # filter2.poles_zeros()
     # filter2.freq_response()
