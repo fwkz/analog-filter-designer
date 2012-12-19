@@ -104,7 +104,7 @@ class Filter(object):
         #Frequency response of analog filter.
         (self.w, self.h) = signal.freqs(self.b, self.a, worN=1000)
 
-        #Denormalizing variabels for ploting.
+        #Denormalizing variabels for ploting. Pulsation to frequency.
         self.w = (self.w * (self.sampling_w / 2)) / (2 * pi)
         self.wn = (self.wn * (self.sampling_w / 2)) / (2 * pi)
 
