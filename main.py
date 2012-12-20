@@ -190,7 +190,6 @@ if __name__ == '__main__':
     # filter4 = Filter(100, 150, 1.0, 40.0, ftype="ellip")
 
     filter1.freq_response()
-    print filter1.a
     # filter2.freq_response()
     # filter3.freq_response()
     # filter4.freq_response()
