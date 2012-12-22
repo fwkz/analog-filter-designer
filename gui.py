@@ -59,8 +59,11 @@ class MyFrame(wx.Frame):
         try:
             self.fp = int(self.fp)
         except ValueError:
-            self.fp = self.fp.split(" ")
-            self.fp = [int(freq) for freq in self.fp]
+            try:
+                self.fp = self.fp.split(" ")
+                self.fp = [int(freq) for freq in self.fp]
+            except ValueError:
+                pass
             print self.fp
 
     def get_fs(self, event):
@@ -68,8 +71,11 @@ class MyFrame(wx.Frame):
         try:
             self.fs = int(self.fs)
         except ValueError:
-            self.fs = self.fs.split(" ")
-            self.fs = [int(freq) for freq in self.fs]
+            try:
+                self.fs = self.fs.split(" ")
+                self.fs = [int(freq) for freq in self.fs]
+            except ValueError:
+                pass
             print self.fs
 
     def get_gpass(self, event):
