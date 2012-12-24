@@ -2,7 +2,7 @@ import wx
 from main import Filter
 from matplotlib import pyplot
 class MyFrame(wx.Frame):
-    """ We simply derive a new class of Frame. """
+    """ New class of Frame. """
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(270, 280))
         panel = wx.Panel(self)

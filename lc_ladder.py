@@ -1,4 +1,5 @@
 from main import Filter
+import sys
 import numpy as np
 
 class LCladder(Filter):
@@ -7,12 +8,12 @@ class LCladder(Filter):
         self.R1 = R1
         self.R2 = R2
 
-        """TEST DATA FOR CHEBY"""
+        """ TEST DATA FOR CHEBY """
         #self.gpass = 1.5
         #self.ord = 4
         #self.wn = np.pi * 100000.0
 
-        """TEST DATA FOR BUTTER"""
+        """ TEST DATA FOR BUTTER """
         #self.ord = 4
         #self.wn = 100000.0
 
@@ -32,18 +33,45 @@ class LCladder(Filter):
         #Frequency to pulsation
         self.wn = self.wn * np.pi * 2    
 
+    def load_matched(self):
+        if self.R1 != self.R2:
+            raise Exception("Load not matched!")
+            sys.exit(1)
+        elif self.ftype in ('cheby1', 'cheby2'):
+            lc_ladder = self.load_not_matched()
+        elif self.ftype == "butter":
+            lc_ladder = []
+            for k in range(1, self.ord + 1):
+                x = 2.0 * np.sin(((2.0*k-1.0)*np.pi)/(2.0*self.ord))
+                x = x / self.R2
+                lc_ladder.append(x)
+        return lc_ladder
+        
+
     def load_not_matched(self):
         if self.R2 > self.R1:
             value_1 = self.coil_1() #Initial value
             initial_element_key = "L1"
             key_2 = 'C'
             key_1 = 'L'
-        else:
+        elif self.R2 < self.R1:
             value_1 = self.cap_1() #Initial value
             initial_element_key = "C1"
             key_2 = 'L'
             key_1 = 'C'
-
+        else:
+            if self.ftype == "butter":
+                raise Exception("Load matched! Please execute LCladder.load_matched()")
+                sys.exit(1)
+            elif self.ftype in ("cheby1", "cheby2"):
+                value_1 = self.coil_1() #Initial value
+                initial_element_key = "L1"
+                key_2 = 'C'
+                key_1 = 'L'
+            else:
+                raise Exception("Unknown filter type.")
+                sys.exit(1)
+                  
         lc_ladder = {}
         m = self.ord/2
         lc_ladder[initial_element_key] = value_1
@@ -117,77 +145,17 @@ class LCladder(Filter):
 
 
     def epsilon(self):
-        """Chebyshev pass band ripple"""
+        """Maximum pass band ripple. Chebyshev lc ladder help variable"""
         E = np.sqrt(np.power(10.0, self.gpass/10.0)-1.0)
         return E
 
 
     def fm(self, m, x, y):
+        "Chebyshev lc ladder help variable"
         fm = np.power(x, 2) + np.power(y, 2) + np.power((np.sin(self.phi_m(2.0*m))),2) - 2.0*x*y*np.cos(self.phi_m(2.0*m))
         return fm
 
-
-    '''
-    def R1_gt_R2(self, ord):
-        """TEST R1 > R2"""
-
-        lc_ladder = {}
-        """TEST"""
-        self.ord = 4.0
-        self.wn = 100000.0
-        """"""""
-        m = ord/2
-        C_value = self.cap_1() #Initial L value
-        lc_ladder['C1'] = C_value
-
-        for m in range(1, m+1):
-            L_value = (4.0 * np.sin(self.phi_m(4.0*m-3.0)) * np.sin(self.phi_m(4.0*m-1.0))) / (C_value * np.power(self.wn, 2.0)*(1.0 - 2.0 * self.alpha*np.cos(self.phi_m(4.0*m-2.0))+np.power(self.alpha,2.0))) #2.65a
-            C_value = (4.0 * np.sin(self.phi_m(4.0*m-1.0)) * np.sin(self.phi_m(4.0*m+1.0))) / (L_value * np.power(self.wn, 2.0)*(1.0 - 2.0 * self.alpha*np.cos(self.phi_m(4.0*m))+np.power(self.alpha,2.0))) #2.65b
-
-            L_id = 2 * m
-            coil_key = "L" + str(L_id)
-            lc_ladder[coil_key] = L_value
-
-            if len(lc_ladder) == self.ord:
-                break
-
-            C_id = 2 * m + 1
-            cap_key = "C" + str(C_id)
-            lc_ladder[cap_key] = C_value
-        return lc_ladder
-
-
-    def R2_gt_R1(self, ord):
-        """TEST R2 > R1"""
-
-        lc_ladder = {}
-        m = ord/2
-        L_value = self.coil_1() #Initial L value
-        lc_ladder['L1'] = L_value
-
-        for m in range(1, m+1):
-            C_value = (4.0 * np.sin(self.phi_m(4*m-3)) * np.sin(self.phi_m(4*m-1))) / (L_value * np.power(self.wn, 2)*(1.0 - 2.0 * self.alpha*np.cos(self.phi_m(4*m-2.0))+np.power(self.alpha,2))) #2.65a
-            L_value = (4.0 * np.sin(self.phi_m(4*m-1)) * np.sin(self.phi_m(4*m+1))) / (C_value * np.power(self.wn, 2)*(1.0 - 2.0 * self.alpha*np.cos(self.phi_m(4*m))+np.power(self.alpha,2))) #2.65b
-            
-            C_id = 2 * m
-            cap_key = "C" + str(C_id)
-            lc_ladder[cap_key] = C_value
-
-            if len(lc_ladder) == self.ord:
-                break
-
-            L_id = 2 * m + 1
-            coil_key = "L" + str(L_id)
-            lc_ladder[coil_key] = L_value
-        return lc_ladder
-    '''
-
 if __name__ == '__main__':
-    ladder = LCladder(1500.0, 620.0, 500, 700, 1.0, 20, 'butter', 'lowpass')
+    ladder = LCladder(1500.0, 1500.0, 500, 700, 1.0, 20, 'cheby1', 'lowpass')
     print ladder.ord
-    print ladder.load_not_matched()  
-
-    # print 'phi ', ladder.phi_m(1)
-    # print 'alpha ', ladder.alpha()
-    # print 'cap_1 ', ladder.cap_1()
-    # print 'coil_1', ladder.coil_1()
+    print ladder.load_matched()
