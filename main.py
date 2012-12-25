@@ -108,6 +108,7 @@ class Filter(object):
         self.w = (self.w * (self.sampling_w / 2)) / (2 * pi)
         self.wn = (self.wn * (self.sampling_w / 2)) / (2 * pi)
 
+
     def phase_response(self):
         """Plotting PHASE response of the filter."""
         pyplot.figure()
@@ -171,7 +172,10 @@ class Filter(object):
 
         #Plotting step response
         pyplot.figure()
-        pyplot.plot(T, yout)
+        try:
+            pyplot.plot(T, yout)
+        except ComplexWarning:
+            pass
         pyplot.grid(True)
         pyplot.xlabel('Time')
         pyplot.xlim(0, max(T))
@@ -189,14 +193,9 @@ if __name__ == '__main__':
     # filter3 = Filter(100, 150, 1.0, 20.0, ftype="cheby2")
     # filter4 = Filter(100, 150, 1.0, 40.0, ftype="ellip")
 
+    filter1.poles_zeros()
     filter1.freq_response()
-    # filter2.freq_response()
-    # filter3.freq_response()
-    # filter4.freq_response()
-
-    # filter2.poles_zeros()
-    # filter2.freq_response()
-    # filter2.step_response()
-    # filter2.phase_response()
+    filter1.step_response()
+    filter1.phase_response()
 
     pyplot.show()

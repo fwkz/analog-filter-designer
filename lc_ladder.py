@@ -45,6 +45,9 @@ class LCladder(Filter):
                 x = 2.0 * np.sin(((2.0*k-1.0)*np.pi)/(2.0*self.ord))
                 x = x / self.R2
                 lc_ladder.append(x)
+        else:
+            lc_ladder = None 
+
         return lc_ladder
         
 
