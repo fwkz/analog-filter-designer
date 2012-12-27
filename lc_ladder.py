@@ -1,13 +1,14 @@
 from main import Filter
 import sys
 import numpy as np
+from utils import Units
 
 class LCladder(Filter):
     def __init__(self, R1, R2, fp, fs, gpass, gstop, ftype, btype):
         Filter.__init__(self, fp, fs, gpass, gstop, ftype, btype)
         self.R1 = R1
         self.R2 = R2
-
+        self.units = Units()
         """ TEST DATA FOR CHEBY """
         #self.gpass = 1.5
         #self.ord = 4
@@ -55,13 +56,21 @@ class LCladder(Filter):
         if self.R2 > self.R1:
             value_1 = self.coil_1() #Initial value
             initial_element_key = "L1"
+            
             key_2 = 'C'
+            value_2_unit = "F"
+
             key_1 = 'L'
+            value_1_unit = "H"
         elif self.R2 < self.R1:
             value_1 = self.cap_1() #Initial value
             initial_element_key = "C1"
+
             key_2 = 'L'
+            value_2_unit = "H"
+            
             key_1 = 'C'
+            value_1_unit = "F"
         else:
             if self.ftype == "butter":
                 raise Exception("Load matched! Please execute LCladder.load_matched()")
@@ -70,14 +79,17 @@ class LCladder(Filter):
                 value_1 = self.coil_1() #Initial value
                 initial_element_key = "L1"
                 key_2 = 'C'
+                value_2_unit = "F"
+
                 key_1 = 'L'
+                value_1_unit = "H"
             else:
                 raise Exception("Unknown filter type.")
                 sys.exit(1)
                   
         lc_ladder = {}
         m = self.ord/2
-        lc_ladder[initial_element_key] = value_1
+        lc_ladder[initial_element_key] = np.around(self.units.rescale(value_1, value_1_unit), 3)
 
         for m in range(1, m+1):
             if self.ftype == "butter":
@@ -89,14 +101,14 @@ class LCladder(Filter):
 
             value_2_id = 2 * m
             value_2_key = key_2 + str(value_2_id)
-            lc_ladder[value_2_key] = value_2
+            lc_ladder[value_2_key] = np.around(self.units.rescale(value_2, value_2_unit), 3)
 
             if len(lc_ladder) == self.ord:
                 break
 
             value_1_id = 2 * m + 1
             value_1_key = key_1 + str(value_1_id)
-            lc_ladder[value_1_key] = value_1
+            lc_ladder[value_1_key] = np.around(self.units.rescale(value_1, value_1_unit), 3)
         return lc_ladder
 
 
@@ -159,6 +171,6 @@ class LCladder(Filter):
         return fm
 
 if __name__ == '__main__':
-    ladder = LCladder(1500.0, 1500.0, 500, 700, 1.0, 20, 'cheby1', 'lowpass')
+    ladder = LCladder(1500.0, 202.0, 500, 700, 1.0, 20, 'butter', 'lowpass')
     print ladder.ord
-    print ladder.load_matched()
+    print ladder.load_not_matched()
