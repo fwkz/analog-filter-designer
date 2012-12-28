@@ -31,9 +31,9 @@ class Scheme(object):
 
     def design(self, lc_ladder_elements):
         self.lc_ladder_elements = lc_ladder_elements
-        img_size = (self.element_size[0]*self.ord + self.input_size[0] + self.out_size[0], self.element_size[1]) 
+        self.img_size = (self.element_size[0]*self.ord + self.input_size[0] + self.out_size[0], self.element_size[1]) 
 
-        self.img = Image.new("RGB", img_size)
+        self.img = Image.new("RGB", self.img_size)
         self.draw = ImageDraw.Draw(self.img)
 
         self.img.paste(self.init_copy, (0,0))
@@ -62,8 +62,8 @@ class Scheme(object):
         self.draw.text((self.width+50, 75), "R2", font=self.font, fill="black")
         self.draw.text((self.width+75, 75), text, font=self.font, fill="black")
 
-        self.img.show()
-
+        #self.img.show()
+        self.img.save('img.jpg')
 
     def __add_element(self, element, m):
         if element == "cap":
@@ -71,7 +71,7 @@ class Scheme(object):
             element_label = "C" + str(m)
             element_label = element_label + "=" + str(self.lc_ladder_elements[element_label])
             print element_label
-            pos = (self.width + 10, 150)
+            pos = (self.width + 5, 150)
         elif element == "coil":
             element = self.coil_copy
             element_label = "L" + str(m)
@@ -88,7 +88,7 @@ class Scheme(object):
         self.draw.text(pos, element_label, font=self.font, fill="black") 
    
 if __name__ == "__main__":
-    ladder = LCladder(1500.0, 2022.0, 500, 700, 1.0, 20, 'butter', 'lowpass')
+    ladder = LCladder(1500.0, 222.0, 500, 700, 1.0, 20, 'butter', 'lowpass')
     lc_ladder_elements = ladder.load_not_matched()
 
     print lc_ladder_elements

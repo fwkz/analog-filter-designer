@@ -171,6 +171,6 @@ class LCladder(Filter):
         return fm
 
 if __name__ == '__main__':
-    ladder = LCladder(1500.0, 202.0, 500, 700, 1.0, 20, 'butter', 'lowpass')
+    ladder = LCladder(1500.0, 1700.0, 500, 1000, 3.0, 20, 'butter', 'lowpass')
     print ladder.ord
     print ladder.load_not_matched()

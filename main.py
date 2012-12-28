@@ -117,6 +117,7 @@ class Filter(object):
         pyplot.xlim(0, max(self.w))
         pyplot.title('Phase Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
 
+
     def freq_response(self):
         """Plotting FREQUENCY response of filter."""
         pyplot.figure()
@@ -128,6 +129,7 @@ class Filter(object):
         self.axis_formatter = [0, max(self.w)*self.xaxis_max, 0, 1.2]
         pyplot.axis(self.axis_formatter)
         pyplot.vlines(self.wn, 0, 1.2, color='k', linestyles='dashdot', label="wn")
+
 
     def poles_zeros(self):
         """Computing and plotting POLES-ZEROS of the filter"""
@@ -165,6 +167,7 @@ class Filter(object):
         pyplot.axis([-max_limit, max_limit, -max_limit, max_limit])
         pyplot.vlines(0, -max_limit, max_limit, color='k', linestyles='dotted')
         pyplot.hlines(0, -max_limit, max_limit, color='k', linestyles='dotted')
+
 
     def step_response(self):
         """Computing and plotting STEP response of the filter."""
