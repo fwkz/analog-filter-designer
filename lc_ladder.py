@@ -177,12 +177,20 @@ class LCladder(Filter):
 
     def prototype(self):
         if self.btype in ("bandpass", "bandstop"):
-            omega0 = np.sqrt(self.fp[0]*self.fp[1])
-            beta = (omega0)/(self.fp[1]-self.fp[0])
+            w0 = np.sqrt(self.fp[0]*self.fp[1]) #middle frequency
+            beta = (omega0)/(self.fp[1]-self.fp[0]) #beta factor
             print omega0, beta
         else:
             pass
 
+    def lowpass_prototype_order(self, wpass, wstop):
+        if self.btype == "butter":
+            order = (np.log(np.pow(10,0.1*self.gstop)-1.0)-(np.pow(0.1*self.gpass)-1.0))/(np.log(abs(wstop/w0 - w0/wstop)) - np.log(abs(wpass/w0 - w0/wpass))) #page 68
+        elif self.ftype in ('cheby1', 'cheby2'):
+            """TBI"""
+        else:
+            raise Exception("Unknown filter's approximation type.")
+            sys.exit(1)
 
 if __name__ == '__main__':
     ladder = LCladder(1000.0, 200.0, [1000.0, 1500.0], [500.0, 2000], 3.0, 20, 'butter', 'bandpass')
