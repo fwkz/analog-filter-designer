@@ -128,6 +128,8 @@ class LCladder(Filter):
             cap_1 = (2.0 * np.sin(self.phi_m(1.0)))/(self.R1*(1.0-self.alpha) * self.wn) #2.68
         elif self.ftype in ('cheby1', 'cheby2'):
             cap_1 = (2.0 * np.sin((np.pi/2.0)/self.ord))/(self.R1*(np.sinh(self.a) - np.sinh(self.a_)) * self.wn) #2.77
+        else:
+            cap_1 = None
         return cap_1
 
 
@@ -137,6 +139,8 @@ class LCladder(Filter):
             coil_1 = (2.0 * self.R1 * np.sin(self.phi_m(1.0)))/((1.0-self.alpha) * self.wn) #2.64
         elif self.ftype in ('cheby1', 'cheby2'):
             coil_1 = (2.0*self.R1*np.sin((np.pi/2.0)/self.ord))/((np.sinh(self.a) - np.sinh(self.a_)) * self.wn)  #2.73
+        else:
+            coil_1 = None
         return coil_1
 
 
@@ -170,7 +174,18 @@ class LCladder(Filter):
         fm = np.power(x, 2) + np.power(y, 2) + np.power((np.sin(self.phi_m(2.0*m))),2) - 2.0*x*y*np.cos(self.phi_m(2.0*m))
         return fm
 
+
+    def prototype(self):
+        if self.btype in ("bandpass", "bandstop"):
+            omega0 = np.sqrt(self.fp[0]*self.fp[1])
+            beta = (omega0)/(self.fp[1]-self.fp[0])
+            print omega0, beta
+        else:
+            pass
+
+
 if __name__ == '__main__':
-    ladder = LCladder(1500.0, 1700.0, 500, 1000, 3.0, 20, 'butter', 'lowpass')
+    ladder = LCladder(1000.0, 200.0, [1000.0, 1500.0], [500.0, 2000], 3.0, 20, 'butter', 'bandpass')
     print ladder.ord
-    print ladder.load_not_matched()
+    # print ladder.load_not_matched()
+    ladder.prototype()
