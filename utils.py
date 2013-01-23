@@ -4,6 +4,7 @@ from sys import exit
 
 class Units(object):
     def __init__(self):
+        """ Define units """
         self.mF = pq.UnitQuantity('millifarad', pq.farad/1e3, symbol='mF')
         self.uF = pq.UnitQuantity('microfarad', pq.farad/1e6, symbol='uF')
         self.nF = pq.UnitQuantity('nanofarad', pq.farad/1e9, symbol='nF')
@@ -15,6 +16,7 @@ class Units(object):
         self.pH = pq.UnitQuantity('picohenry', pq.henry/1e12, symbol='pH')
 
     def rescale(self, x, unit):
+        """ Rescale unit to proper order """
         if unit == "F":
             x = x * pq.farad
 
