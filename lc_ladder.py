@@ -5,17 +5,19 @@ from utils import Units
 
 class LCladder(Filter):
     def __init__(self, R1, R2, fp, fs, gpass, gstop, ftype, btype):
+        """ Variables init """
         Filter.__init__(self, fp, fs, gpass, gstop, ftype, btype)
         self.R1 = R1
         self.R2 = R2
         self.units = Units()
+
         """ TEST DATA FOR CHEBY """
         #self.gpass = 1.5
         #self.ord = 4
         #self.wn = np.pi * 100000.0
 
         """ TEST DATA FOR BUTTER """
-        #self.ord = 4
+        #self.ord = 5
         #self.wn = 100000.0
 
         if ftype == 'butter':
@@ -35,6 +37,7 @@ class LCladder(Filter):
         self.wn = self.wn * np.pi * 2    
 
     def load_matched(self):
+        """ Normalized matched LC ladder elements """
         if self.R1 != self.R2:
             raise Exception("Load not matched!")
             sys.exit(1)
@@ -44,14 +47,32 @@ class LCladder(Filter):
             lc_ladder = []
             for k in range(1, self.ord + 1):
                 x = 2.0 * np.sin(((2.0*k-1.0)*np.pi)/(2.0*self.ord))
-                x = x / self.R2
                 lc_ladder.append(x)
         else:
-            lc_ladder = None 
-
+            lc_ladder = None
         return lc_ladder
-        
 
+
+    def load_matched_denormalizer(self, elements):
+        """ Denormalize normalized elements of matched LC ladder ciurcuit """
+        lc_ladder = {}
+        id = 1
+        for element in elements:
+            if id % 2 == 1:
+                key = "C"
+                unit = "F"
+                element = element / (self.wn * self.R1)
+            else:
+                key = "L"
+                unit = "H"
+                element = element / self.R1
+            key = key + str(id)
+            id = id + 1
+            lc_ladder[key] =  np.around(self.units.rescale(element, unit), 3)
+
+        return lc_ladder            
+            
+        
     def load_not_matched(self):
         if self.R2 > self.R1:
             value_1 = self.coil_1() #Initial value
@@ -113,11 +134,13 @@ class LCladder(Filter):
 
 
     def phi_m(self, m):
+        """ LC ladder help variable"""
         phi_m = (m * np.pi) / (2 * self.ord) #2.67
         return phi_m
 
 
     def alpha(self):
+        """ LC ladder help variable"""
         alpha = np.power(abs((self.R1-self.R2)/(self.R1+self.R2)), 1.0 / self.ord) #2.66
         return alpha
 
@@ -128,8 +151,6 @@ class LCladder(Filter):
             cap_1 = (2.0 * np.sin(self.phi_m(1.0)))/(self.R1*(1.0-self.alpha) * self.wn) #2.68
         elif self.ftype in ('cheby1', 'cheby2'):
             cap_1 = (2.0 * np.sin((np.pi/2.0)/self.ord))/(self.R1*(np.sinh(self.a) - np.sinh(self.a_)) * self.wn) #2.77
-        else:
-            cap_1 = None
         return cap_1
 
 
@@ -139,8 +160,6 @@ class LCladder(Filter):
             coil_1 = (2.0 * self.R1 * np.sin(self.phi_m(1.0)))/((1.0-self.alpha) * self.wn) #2.64
         elif self.ftype in ('cheby1', 'cheby2'):
             coil_1 = (2.0*self.R1*np.sin((np.pi/2.0)/self.ord))/((np.sinh(self.a) - np.sinh(self.a_)) * self.wn)  #2.73
-        else:
-            coil_1 = None
         return coil_1
 
 
