@@ -19,14 +19,15 @@ setup(
     version='1.0',
     description="Analog Filter Designer",
     author="Mariusz Kupidura",
-    console=['gui.py'],
     data_files=files,
+    windows=["gui.py"],
     options={
         "py2exe":{
                 "skip_archive": False,
                 "unbuffered": True,
                 "optimize": 2,
                 "includes": ["matplotlib.backends.backend_tkagg"]
+
         }
 }
 )

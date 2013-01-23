@@ -89,7 +89,7 @@ class MyFrame(wx.Frame):
                 self.fp = [int(freq) for freq in self.fp]
             except ValueError:
                 pass
-            print self.fp
+            #print self.fp
 
 
     def get_fs(self, event):
@@ -103,7 +103,7 @@ class MyFrame(wx.Frame):
                 self.fs = [int(freq) for freq in self.fs]
             except ValueError:
                 pass
-            print self.fs
+            #print self.fs
 
 
     def get_gpass(self, event):
@@ -114,13 +114,13 @@ class MyFrame(wx.Frame):
     def get_R1(self, event):
         """ Get input Load """
         self.R1 = float(self.R1_spinner.GetValue())
-        print float(self.R1)
+        #print float(self.R1)
 
 
     def get_R2(self, event):
         """ Get output load """
         self.R2 = float(self.R2_spinner.GetValue())
-        print float(self.R2)
+        #print float(self.R2)
 
 
     def get_gstop(self, event):
@@ -133,13 +133,13 @@ class MyFrame(wx.Frame):
         self.ftype = self.ftype_listbox.GetStringSelection()
         types_dict = {"Butterworth":"butter", "Chebyshev I":"cheby1", "Chebyshev II":"cheby2", "Cauer": "ellip"}
         self.ftype = types_dict[self.ftype]
-        print self.ftype
+        #print self.ftype
     
 
     def get_btype(self, event):
         """ Get band type """
         self.btype = self.btype_listbox.GetStringSelection().lower()
-        print self.btype
+        #print self.btype
 
 
     def OnClick(self, event):
