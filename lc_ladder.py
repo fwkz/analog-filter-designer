@@ -48,8 +48,10 @@ class LCladder(Filter):
             for k in range(1, self.ord + 1):
                 x = 2.0 * np.sin(((2.0*k-1.0)*np.pi)/(2.0*self.ord))
                 lc_ladder.append(x)
+            lc_ladder = self.load_matched_denormalizer(lc_ladder)
         else:
             lc_ladder = None
+        
         return lc_ladder
 
 
@@ -58,7 +60,7 @@ class LCladder(Filter):
         lc_ladder = {}
         id = 1
         for element in elements:
-            if id % 2 == 1:
+            if id % 2 == 0:
                 key = "C"
                 unit = "F"
                 element = element / (self.wn * self.R1)
@@ -212,7 +214,7 @@ class LCladder(Filter):
             sys.exit(1)
 
 if __name__ == '__main__':
-    ladder = LCladder(1000.0, 200.0, [1000.0, 1500.0], [500.0, 2000], 3.0, 20, 'butter', 'bandpass')
+    ladder = LCladder(1000.0, 1000.0, 500.0, 1000.0, 3.0, 20, 'butter', 'lowpass')
     print ladder.ord
-    # print ladder.load_not_matched()
-    ladder.prototype()
+    print ladder.load_matched()
+    #ladder.prototype()

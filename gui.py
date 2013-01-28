@@ -9,7 +9,7 @@ import Tkinter
 class MyFrame(wx.Frame):
     """ New class of Frame. """
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(270, 340))
+        wx.Frame.__init__(self, parent, title=title, size=(270, 340), style=wx.DEFAULT_FRAME_STYLE & (~wx.RESIZE_BORDER))
         panel = wx.Panel(self)
         
         #GENERATE BUTTON
@@ -140,10 +140,29 @@ class MyFrame(wx.Frame):
         """ Get band type """
         self.btype = self.btype_listbox.GetStringSelection().lower()
         #print self.btype
-
+    
+    def validation(self):
+        if self.fp == self.fs:
+            dlg = wx.MessageDialog(None, "Passband and stopband corner frequencies must be different!", "Warning", wx.ICON_EXCLAMATION)
+            dlg.ShowModal()
+            return False
+        elif self.gpass == self.gstop:
+            dlg = wx.MessageDialog(None, "Passband ripple and stopband attenuation must be different!", "Warning", wx.ICON_EXCLAMATION)
+            dlg.ShowModal()
+            return False
+        else:
+            return True
+        
 
     def OnClick(self, event):
         """ Event bind to 'Generate' button """
+        #Validation
+        valid = self.validation()
+        if valid == True:
+            pass
+        else:
+            return None
+
         filter_ = Filter(self.fp, self.fs, self.gpass, self.gstop, ftype=self.ftype, btype=self.btype)
         filter_.step_response()
         filter_.phase_response()
@@ -156,8 +175,7 @@ class MyFrame(wx.Frame):
             ladder = LCladder(self.R1, self.R2, self.fp, self.fs, self.gpass, self.gstop, ftype=self.ftype, btype=self.btype) 
             if filter_.btype == "lowpass":
                 if self.R1 == self.R2:
-                    normalized_lc_ladder_elements = ladder.load_matched()
-                    lc_ladder_elements = ladder.load_matched_denormalizer(normalized_lc_ladder_elements)
+                    lc_ladder_elements = ladder.load_matched()
                 else:
                     lc_ladder_elements = ladder.load_not_matched()
                     
@@ -168,6 +186,8 @@ class MyFrame(wx.Frame):
                 panel = SchemePanel(frame)
                 frame.Show()
         pyplot.show()
+
+
 
 
 class SchemePanel(scrolled.ScrolledPanel):

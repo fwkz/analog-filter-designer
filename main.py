@@ -44,9 +44,9 @@ class Filter(object):
         pyplot.figure()
         pyplot.plot(self.w, unwrap((angle(self.h))))
         pyplot.grid(True)
-        pyplot.xlim(0, max(self.w))
+        pyplot.xlim(min(self.w), max(self.w))
         pyplot.title('Phase Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
-
+        
 
     def freq_response(self):
         """Plotting FREQUENCY response of filter."""
@@ -56,7 +56,7 @@ class Filter(object):
         pyplot.xlabel('Frequency')
         pyplot.ylabel('Magnitude')
         pyplot.grid(True)
-        self.axis_formatter = [0, max(self.w)*self.xaxis_max, 0, 1.2]
+        self.axis_formatter = [min(self.w), max(self.w)*self.xaxis_max, 0, 1.2]
         pyplot.axis(self.axis_formatter)
         pyplot.vlines(self.wn, 0, 1.2, color='k', linestyles='dashdot', label="wn")
 
@@ -111,8 +111,8 @@ class Filter(object):
             pass
         pyplot.grid(True)
         pyplot.xlabel('Time')
-        pyplot.xlim(0, max(T))
-        pyplot.title('Impulse Response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
+        pyplot.xlim(min(T), max(T))
+        pyplot.title('Impulse response' + "\n" + str(self.ord) + "th order " + self.btype + " " + self.ftype_plot + " filter")
 
 
     """ PRIVATE METHODS """

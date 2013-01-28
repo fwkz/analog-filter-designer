@@ -50,7 +50,7 @@ class Scheme(object):
         self.draw.text((75, 45), text, font=self.font, fill="black")
         self.draw.text((90, 17), "R1", font=self.font, fill="black")
 
-        if self.R2 > self.R1:
+        if self.R2 >= self.R1:
             cycle = 2
         else:
             cycle = 1
