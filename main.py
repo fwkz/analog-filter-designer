@@ -1,7 +1,10 @@
 from numpy import *
 from scipy import signal
+import matplotlib
+matplotlib.use('WXAgg')
 from matplotlib import pyplot
 from matplotlib.patches import Circle
+
 
 
 class Filter(object):
@@ -77,7 +80,7 @@ class Filter(object):
             circle = Circle((0, 0), radius=1, linestyle='dotted', fill=False)
 
         #Plotting Poles-zeros
-        pyplot.scatter(real(p), imag(p), marker='o', s=50)
+        #pyplot.scatter(real(p), imag(p), marker='o', s=50)
         pyplot.scatter(real(z), imag(z), marker='x', s=100)
 
         pyplot.xlabel('Real Part')

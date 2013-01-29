@@ -13,13 +13,13 @@ class MyFrame(wx.Frame):
         panel = wx.Panel(self)
         
         #GENERATE BUTTON
-        button = wx.Button(panel, wx.ID_ANY, label="Generate", pos=(70, 240), size=(120, 40))
+        button = wx.Button(panel, wx.ID_ANY, label="Generate", pos=(70, 270), size=(120, 40))
         self.Bind(wx.EVT_BUTTON, self.OnClick, button)
 
         #BANDTYPE
-        ftype_txt = wx.StaticText(panel, label="Band type:", pos=(150, 120))
+        ftype_txt = wx.StaticText(panel, label="Band type:", pos=(150, 140))
         btype_list = ["Lowpass", "Highpass", "Bandpass", "Bandstop"]
-        self.btype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 135), (80, 60), btype_list, wx.LB_SINGLE)
+        self.btype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 155), (100, 100), btype_list, wx.LB_SINGLE)
         self.btype_listbox.SetSelection(0)
         self.get_btype(wx.EVT_LISTBOX)
         self.Bind(wx.EVT_LISTBOX, self.get_btype, self.btype_listbox)
@@ -27,7 +27,7 @@ class MyFrame(wx.Frame):
         #FILTER APPROX TYPE
         ftype_txt = wx.StaticText(panel, label="Approximation:", pos=(150, 20))
         ftype_list = ["Butterworth", "Chebyshev I", "Chebyshev II", "Cauer"]
-        self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 35), (80, 60), ftype_list, wx.LB_SINGLE)
+        self.ftype_listbox = wx.ListBox(panel, wx.ID_ANY, (150, 35), (100, 100), ftype_list, wx.LB_SINGLE)
         self.ftype_listbox.SetSelection(0)
         self.get_ftype(wx.EVT_LISTBOX)
         self.Bind(wx.EVT_LISTBOX, self.get_ftype, self.ftype_listbox)
@@ -42,35 +42,35 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.get_fp, self.fp_ctrl)
 
         #Stopband corner frequency textbox
-        fs_txt = wx.StaticText(panel, label="Fs", pos=(20, 70))
-        self.fs_ctrl = wx.TextCtrl(panel, wx.ID_ANY, "1", (60, 70), (70, 20))
+        fs_txt = wx.StaticText(panel, label="Fs", pos=(20, 75))
+        self.fs_ctrl = wx.TextCtrl(panel, wx.ID_ANY, "1", (60, 75), (70, 20))
         self.get_fs(wx.EVT_TEXT)
         self.Bind(wx.EVT_TEXT, self.get_fs, self.fs_ctrl)
 
         #Passband ripple spinner
-        gpass_txt = wx.StaticText(panel, label="gpass", pos=(20, 100))
-        self.gpass_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 100), (70, 20))
+        gpass_txt = wx.StaticText(panel, label="gpass", pos=(20, 105))
+        self.gpass_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 105), (70, 20))
         self.gpass_spinner.SetRange(1,100)
         self.get_gpass(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_gpass, self.gpass_spinner)
         
         #Stopband attenuation spinner
-        gstop_txt = wx.StaticText(panel, label="gstop", pos=(20, 130))
-        self.gstop_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 130), (70, 20))
+        gstop_txt = wx.StaticText(panel, label="gstop", pos=(20, 135))
+        self.gstop_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 135), (70, 20))
         self.gstop_spinner.SetRange(1,1000)
         self.get_gstop(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_gstop, self.gstop_spinner)
 
         #R1 - input load spinner
-        R1_txt = wx.StaticText(panel, label= 'R1', pos=(20, 160))
-        self.R1_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 160), (70, 20))
+        R1_txt = wx.StaticText(panel, label= 'R1', pos=(20, 165))
+        self.R1_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 165), (70, 20))
         self.R1_spinner.SetRange(1, 100000000)
         self.get_R1(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_R1, self.R1_spinner)
         
         #R2 - output load spinner
-        R2_txt = wx.StaticText(panel, label= 'R2', pos=(20, 190))
-        self.R2_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 190), (70, 20))
+        R2_txt = wx.StaticText(panel, label= 'R2', pos=(20, 195))
+        self.R2_spinner = wx.SpinCtrl(panel, wx.ID_ANY, "", (60, 195), (70, 20))
         self.R2_spinner.SetRange(1, 100000000)
         self.get_R2(wx.EVT_SPINCTRL)
         self.Bind(wx.EVT_SPINCTRL, self.get_R2, self.R2_spinner)
@@ -162,7 +162,8 @@ class MyFrame(wx.Frame):
             pass
         else:
             return None
-
+	
+	pyplot.close("all")
         filter_ = Filter(self.fp, self.fs, self.gpass, self.gstop, ftype=self.ftype, btype=self.btype)
         filter_.step_response()
         filter_.phase_response()
